@@ -106,6 +106,145 @@ function startGame() {
     gameOver = false;
 
     while (!gameOver) {
+        const playerSelection = roundChoice(round);
+        const compSelection = computerPlay();
 
+        console.log(`You chose: ${playerSelection}\nMy choice: ${compSelection}`);
+
+        switch (playRound(playerSelection, compSelection)) {
+            case 1:
+                playerPoints++;
+                if (playerPoints !== toWin) {
+                    // console.log(DIALOGUE.roundWin);
+                    printScore();
+                }
+                break;
+
+            case -1:
+                compPoints++;
+                if (compPoints !== toWin) {
+                    // console.log(DIALOGUE.roundLose);
+                    printScore();
+                }
+                break;
+
+            case 0:
+                // console.log(DIALOGUE.tie);
+                printScore();
+                break;
+        }
+
+        round++;
+        checkGameOver();
+    }
+}
+
+function checkGameOver() {
+    if (playerPoints === toWin) {
+        playerWins();
+        resetGame();
+    } else if (compPoints === toWin) {
+        aiWins();
+        resetGame();
+    }
+}
+
+function playerWins() {
+    alert(DIALOGUE.playerFinalWin);
+    secretRevealed = true;
+}
+
+function aiWins() {
+    alert(DIALOGUE.aiFinalWin);
+}
+
+function resetGame() {
+    round = 1;
+    compPoints = 0;
+    playerPoints = 0;
+    gameOver = true;
+    secretRevealed = false;
+}
+
+
+// ROUND LOGIC
+function playRound(player, computer) {
+    if (player === computer) return 0;
+
+    if (
+        (player === "rock" && computer === "scissors") ||
+        (player === "paper" && computer === "rock") ||
+        (player === "scissors" && computer === "paper")
+    ) return 1;
+    else return -1;
+}
+
+function roundChoice(roundNumber) {
+    console.log(`\nROUND ${roundNumber}`);
+
+    while (true) {
+        const choice = playerPlay();
+
+        if (choice === null) {
+            console.log(DIALOGUE.invalidInput);
+            continue;
+        }
+
+        if (checkValidInput(choice)) return choice;
+
+        console.log(DIALOGUE.invalidInput);
+    }
+}
+
+function computerPlay() {
+    return choices[Math.floor(Math.random() * choices.length)];
+}
+
+function playerPlay() {
+    return normalizedInput(prompt(DIALOGUE.choosePrompt));
+}
+
+
+// UTILS
+function normalizedInput(input) {
+    if (input === null) return null;
+    return input.trim().toLowerCase();
+}
+
+function checkValidInput(playerSelection) {
+    return choices.includes(playerSelection);
+}
+
+function printScore() {
+    console.log(
+        DIALOGUE.scoreHeader
+            .replace("{playerPoints}", playerPoints)
+            .replace("{compPoints}", compPoints)
+    );
+
+    if (playerPoints === compPoints) {
+        if (playerPoints === 0) {
+            alert(DIALOGUE.scoreTie0);
+        } else if (playerPoints === 1) {
+            alert(DIALOGUE.scoreTie1);
+        } else if (playerPoints === 2) {
+            alert(DIALOGUE.scoreTie2);
+        }
+    } else if (compPoints > playerPoints) {
+        if (compPoints === 1) {
+            alert(DIALOGUE.scoreAi1);
+        } else if (compPoints === 2 && playerPoints === 0) {
+            alert(DIALOGUE.scoreAi2_0);
+        } else if (compPoints === 2 && playerPoints === 1) {
+            alert(DIALOGUE.scoreAi2_1);
+        }
+    } else {
+        if (playerPoints === 1) {
+            alert(DIALOGUE.scorePlayer1);
+        } else if (playerPoints === 2 && compPoints === 0) {
+            alert(DIALOGUE.scorePlayer2_0);
+        } else if (playerPoints === 2 && compPoints === 1) {
+            alert(DIALOGUE.scorePlayer2_1);
+        }
     }
 }
