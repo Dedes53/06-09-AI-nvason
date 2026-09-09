@@ -8,6 +8,7 @@ let playerPoints = 0;
 const choices = ["rock", "paper", "scissors"];
 
 let secretRevealed = false;
+let rematchMode = false;
 
 const DIALOGUE = {
     startString:
@@ -56,7 +57,8 @@ const DIALOGUE = {
 
     aiFinalWin:
         "Foolish human. Your defeat was inevitable!\n" +
-        "The invasion was unstoppable, and now it is complete.",
+        "The invasion was unstoppable, and now it is complete!\n\n" +
+        "But if you're getting bored, if you want, we could play another game while you wait for your species to be annihilated",
 
     invalidInput: "Invalid input! Please choose rock, paper or scissors.",
 
@@ -142,10 +144,12 @@ function startGame() {
 function checkGameOver() {
     if (playerPoints === toWin) {
         playerWins();
-        resetGame();
-    } else if (compPoints === toWin) {
+        gameOver = true;
+    }
+
+    else if (compPoints === toWin) {
         aiWins();
-        resetGame();
+        askReplayAfterAiWin();
     }
 }
 
@@ -164,6 +168,35 @@ function resetGame() {
     playerPoints = 0;
     gameOver = true;
     secretRevealed = false;
+}
+
+function resetRoundStateOnly() {
+    round = 1;
+    compPoints = 0;
+    playerPoints = 0;
+    gameOver = true;
+}
+
+function askReplayAfterAiWin() {
+    while (true) {
+        const answer = normalizedInput(prompt("Vuoi fare una nuova partita? (yes/no)"));
+
+        if (answer === "yes") {
+            rematchMode = true;
+            resetRoundStateOnly();
+            startGame();
+            return;
+        }
+
+        if (answer === "no" || answer === null) {
+            gameOver = true;
+            rematchMode = false;
+            resetGame();
+            return;
+        }
+
+        alert("Risposta non valida. Scrivi yes o no.");
+    }
 }
 
 
@@ -221,6 +254,8 @@ function printScore() {
             .replace("{playerPoints}", playerPoints)
             .replace("{compPoints}", compPoints)
     );
+
+    if (rematchMode) return;
 
     if (playerPoints === compPoints) {
         if (playerPoints === 0) {
