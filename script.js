@@ -13,7 +13,7 @@ let rematchMode = false;
 const DIALOGUE = {
     startString:
         "Oh no, you found us! The invasion can now be stopped!\n\n" +
-        "To stop the invasion onper your console browser, type 'stop()' and press Enter.\n\n" +
+        "To stop the invasion open your console browser, type 'stop()' and press Enter.\n\n" +
         "How to open the console:\n\n" +
         "Open your browser's Console:\n" +
         "Chrome / Edge\n" +
