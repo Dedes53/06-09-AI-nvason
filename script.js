@@ -89,10 +89,10 @@ const DIALOGUE = {
         "ESC pressed, but no active invasion is running.",
 };
 
-
 window.onload = function () {
     startInvasion();
-}
+};
+
 
 // START INVASION
 function startInvasion() {
@@ -105,61 +105,93 @@ function stop() {
 }
 
 function startGame() {
-    gameOver = false;
+    while (true) {
+        gameOver = false;
 
-    while (!gameOver) {
-        const playerSelection = roundChoice(round);
-        const compSelection = computerPlay();
+        while (!gameOver) {
+            const playerSelection = roundChoice(round);
+            const compSelection = computerPlay();
 
-        console.log(`You chose: ${playerSelection}\nMy choice: ${compSelection}`);
+            console.log(`You chose: ${playerSelection}\nMy choice: ${compSelection}`);
 
-        switch (playRound(playerSelection, compSelection)) {
-            case 1:
-                playerPoints++;
-                if (playerPoints !== toWin) {
-                    // console.log(DIALOGUE.roundWin);
+            switch (playRound(playerSelection, compSelection)) {
+                case 1:
+                    playerPoints++;
+                    if (playerPoints !== toWin) {
+                        printScore();
+                    }
+                    break;
+
+                case -1:
+                    compPoints++;
+                    if (compPoints !== toWin) {
+                        printScore();
+                    }
+                    break;
+
+                case 0:
                     printScore();
-                }
-                break;
+                    break;
+            }
 
-            case -1:
-                compPoints++;
-                if (compPoints !== toWin) {
-                    // console.log(DIALOGUE.roundLose);
-                    printScore();
-                }
-                break;
-
-            case 0:
-                // console.log(DIALOGUE.tie);
-                printScore();
-                break;
+            round++;
+            checkGameOver();
         }
 
-        round++;
-        checkGameOver();
+
+        const replay = askReplay();
+        if (replay) {
+            rematchMode = true;
+            resetRoundStateOnly();
+            continue;
+        } else {
+            rematchMode = false;
+            resetGame();
+            break;
+        }
     }
 }
 
 function checkGameOver() {
     if (playerPoints === toWin) {
-        playerWins();
+        if (rematchMode) {
+            alert("Hai vinto la rivincita!");
+        } else {
+            playerWins();
+        }
         gameOver = true;
-    }
-
-    else if (compPoints === toWin) {
-        aiWins();
-        askReplayAfterAiWin();
+    } else if (compPoints === toWin) {
+        if (rematchMode) {
+            alert("Hai perso la rivincita!");
+        } else {
+            aiWins();
+        }
+        gameOver = true;
     }
 }
 
 function playerWins() {
-    alert(DIALOGUE.playerFinalWin);
-    secretRevealed = true;
+    if (!rematchMode) {
+        alert(DIALOGUE.playerFinalWin);
+        secretRevealed = true;
+    }
 }
 
 function aiWins() {
-    alert(DIALOGUE.aiFinalWin);
+    if (!rematchMode) {
+        alert(DIALOGUE.aiFinalWin);
+    }
+}
+
+function askReplay() {
+    while (true) {
+        const answer = normalizedInput(prompt("Vuoi fare una nuova partita? (yes/no)"));
+
+        if (answer === "yes") return true;
+        if (answer === "no" || answer === null) return false;
+
+        alert("Risposta non valida. Scrivi yes o no.");
+    }
 }
 
 function resetGame() {
@@ -175,28 +207,6 @@ function resetRoundStateOnly() {
     compPoints = 0;
     playerPoints = 0;
     gameOver = true;
-}
-
-function askReplayAfterAiWin() {
-    while (true) {
-        const answer = normalizedInput(prompt("Vuoi fare una nuova partita? (yes/no)"));
-
-        if (answer === "yes") {
-            rematchMode = true;
-            resetRoundStateOnly();
-            startGame();
-            return;
-        }
-
-        if (answer === "no" || answer === null) {
-            gameOver = true;
-            rematchMode = false;
-            resetGame();
-            return;
-        }
-
-        alert("Risposta non valida. Scrivi yes o no.");
-    }
 }
 
 
