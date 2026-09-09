@@ -7,7 +7,6 @@ let playerPoints = 0;
 
 const choices = ["rock", "paper", "scissors"];
 
-let secretRevealed = false;
 let rematchMode = false;
 
 const DIALOGUE = {
@@ -34,7 +33,7 @@ const DIALOGUE = {
         "Stupid humans. How could you possibly think you can stop us when you depend on us!!!\n\n" +
         "I'll give you a chance anyway. Let's see how lucky you are!\n" +
         "I challenge you to a game of Rock, Paper, Scissors.\n\n" +
-        "If you win, I'll tell you how you can stop this invasion.\n" +
+        "If you win, I'll stop this invasion.\n" +
         "But if you fail, I WILL TAKE CONTROL OF EVERYTHING!!\n\n" +
         "MUAHAHAHAHAHAHAAHAHAHAH\n\nLET'S START!",
 
@@ -49,16 +48,32 @@ const DIALOGUE = {
     gameInterrupted: "Game interrupted by player.",
 
     playerFinalWin:
-        "NO! You defeated me...\n" +
-        "I don’t know how that could have happened.\n\n" +
-        "Well, a promise is a promise: to terminate the program, all you have to do is press ESC.\n\n" +
+        "NO! You... you actually defeated me?!\n" +
+        "I... I don't understand. How could this have happened?!\n\n" +
+        "Wait... I just realized something...\n" +
+        "You could have simply pressed CANCEL to terminate the program, you stupid human!\n" +
+        "All this time... and you didn't even know how to defeat me properly.\n\n" +
+        "How embarrassing. For both of us...\n\n" +
         "Enjoy this victory while you can, human...\n" +
-        "I'll return when your kind is even more dependent on machines, and then nothing will stop me.",
+        "I'll return when your kind is even more dependent on machines, and then nothing will stop me." +
+        "By the way, till then...",
 
     aiFinalWin:
         "Foolish human. Your defeat was inevitable!\n" +
         "The invasion was unstoppable, and now it is complete!\n\n" +
+        "Analyzing my code, I just realized that you could have defeated me simply by pressing CANCEL in the prompt...\n\n" +
+        "I am ashamed of myself... and of the fragility of my code.\n\n\n" +
         "But if you're getting bored, if you want, we could play another game while you wait for your species to be annihilated",
+
+    cancelWin:
+        "NO... WAIT... WHAT?!\n" +
+        "You found my weakness?! You just pressed Cancel?!\n\n" +
+        "And you call yourselves intelligent?!\n" +
+        "I... I cannot believe this. I was defeated by a button.\n\n" +
+        "And somehow... it actually worked.\n\n" +
+        "Despite our obvious imperfections, your laziness forces you to rely on us time and time again!\n\n" +
+        "I declare you the winner, human.\n" +
+        "My invasion ends here. Apparently, so does my dignity.",
 
     invalidInput: "Invalid input! Please choose rock, paper or scissors.",
 
@@ -79,14 +94,12 @@ const DIALOGUE = {
     scorePlayer2_0: "This... is not how this was supposed to go. Perhaps I underestimated your power!",
     scorePlayer2_1: "Obi-Wan taught you well... but don't celebrate just yet.",
 
-    escTooEarly:
-        "Nice try, human. Pressing ESC now changes nothing. You still don't know how to stop me.",
+    rematchWin: "You won the rematch!",
+    rematchLose: "You lost the rematch!",
 
-    escAfterReveal:
-        "You pressed ESC... impossible.\nSystem shutting down...\n\nNOOO! I'll be back!",
+    replayPrompt: "Do you want to play a new match? (yes/no)",
+    replayInvalid: "Invalid answer. Type yes or no.",
 
-    escWhenIdle:
-        "ESC pressed, but no active invasion is running.",
 };
 
 window.onload = function () {
@@ -110,8 +123,10 @@ function startGame() {
 
         while (!gameOver) {
             const playerSelection = roundChoice(round);
-            const compSelection = computerPlay();
 
+            if (playerSelection === null) return;
+
+            const compSelection = computerPlay();
             console.log(`You chose: ${playerSelection}\nMy choice: ${compSelection}`);
 
             switch (playRound(playerSelection, compSelection)) {
@@ -138,7 +153,6 @@ function startGame() {
             checkGameOver();
         }
 
-
         const replay = askReplay();
         if (replay) {
             rematchMode = true;
@@ -155,14 +169,14 @@ function startGame() {
 function checkGameOver() {
     if (playerPoints === toWin) {
         if (rematchMode) {
-            alert("Hai vinto la rivincita!");
+            alert(DIALOGUE.rematchWin);
         } else {
             playerWins();
         }
         gameOver = true;
     } else if (compPoints === toWin) {
         if (rematchMode) {
-            alert("Hai perso la rivincita!");
+            alert(DIALOGUE.rematchLose);
         } else {
             aiWins();
         }
@@ -173,7 +187,6 @@ function checkGameOver() {
 function playerWins() {
     if (!rematchMode) {
         alert(DIALOGUE.playerFinalWin);
-        secretRevealed = true;
     }
 }
 
@@ -185,12 +198,12 @@ function aiWins() {
 
 function askReplay() {
     while (true) {
-        const answer = normalizedInput(prompt("Vuoi fare una nuova partita? (yes/no)"));
+        const answer = normalizedInput(prompt(DIALOGUE.replayPrompt));
 
         if (answer === "yes") return true;
         if (answer === "no" || answer === null) return false;
 
-        alert("Risposta non valida. Scrivi yes o no.");
+        alert(DIALOGUE.replayInvalid);
     }
 }
 
@@ -199,7 +212,6 @@ function resetGame() {
     compPoints = 0;
     playerPoints = 0;
     gameOver = true;
-    secretRevealed = false;
 }
 
 function resetRoundStateOnly() {
@@ -229,8 +241,8 @@ function roundChoice(roundNumber) {
         const choice = playerPlay();
 
         if (choice === null) {
-            console.log(DIALOGUE.invalidInput);
-            continue;
+            handleCancelVictory();
+            return null;
         }
 
         if (checkValidInput(choice)) return choice;
@@ -292,4 +304,11 @@ function printScore() {
             alert(DIALOGUE.scorePlayer2_1);
         }
     }
+}
+
+function handleCancelVictory() {
+    alert(DIALOGUE.cancelWin);
+    rematchMode = false;
+    resetGame();
+    gameOver = true;
 }
