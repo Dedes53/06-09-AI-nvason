@@ -12,9 +12,16 @@ let secretRevealed = false;
 const DIALOGUE = {
     startString:
         "Oh no, you found us! The invasion can now be stopped!\n\n" +
-        "To stop the invasion, type 'stop' and press Enter.\n\n" +
-        "Once you do that, come to the console to get the prize!\n" +
-        "To open the console, press F12 or right click and select 'Inspect'",
+        "To stop the invasion onper your console browser, type 'stop()' and press Enter.\n\n" +
+        "How to open the console:\n\n" +
+        "Open your browser's Console:\n" +
+        "Chrome / Edge\n" +
+        "Windows & Linux: Ctrl + Shift + J\n" +
+        "Mac: ⌘ + ⌥ + J\n\n" +
+        "Firefox\n" +
+        "Windows & Linux: Ctrl + Shift + K\n" +
+        "Mac: ⌘ + ⌥ + K\n\n" +
+        "and prepare yourself, human.",
 
     introNoStop:
         "Oh come on, are you really going to let the invasion happen?\n" +
@@ -81,195 +88,24 @@ const DIALOGUE = {
 };
 
 
-
 window.onload = function () {
     startInvasion();
-};
-
-window.addEventListener("keydown", function (event) {
-    if (event.key !== "Escape") return;
-
-    if (!gameOver) {
-        if (secretRevealed) {
-            console.log(DIALOGUE.escAfterReveal);
-        } else {
-            console.log(DIALOGUE.escTooEarly);
-        }
-
-        gameOver = true;
-        resetGame();
-        return;
-    }
-
-    console.log(DIALOGUE.escWhenIdle);
-});
+}
 
 // START INVASION
 function startInvasion() {
-    const start = normalizedInput(prompt(DIALOGUE.startString));
+    alert(DIALOGUE.startString);
+}
 
-    if (start === null) {
-        console.log("You refused to answer... The invasion continues.");
-    }
-
-    if (start !== "stop" || start === "") {
-        console.log(DIALOGUE.introNoStop);
-    } else {
-        console.log(DIALOGUE.introStop);
-    }
-
+function stop() {
+    alert(DIALOGUE.introStop);
     startGame();
 }
 
-
-// GAME LOOP
 function startGame() {
     gameOver = false;
 
     while (!gameOver) {
-        const playerSelection = roundChoices(round);
 
-        const computerSelection = computerPlay();
-
-        console.log(`You chose: ${playerSelection}\nMy choice: ${computerSelection}`);
-
-        switch (playRound(playerSelection, computerSelection)) {
-            case 1:
-                playerPoints++;
-                if (playerPoints !== toWin) {
-                    // console.log(DIALOGUE.roundWin);
-                    printScore();
-                }
-                break;
-
-            case -1:
-                compPoints++;
-                if (compPoints !== toWin) {
-                    // console.log(DIALOGUE.roundLose);
-                    printScore();
-                }
-                break;
-
-            case 0:
-                // console.log(DIALOGUE.tie);
-                printScore();
-                break;
-        }
-
-        round++;
-        checkGameOver();
-    }
-}
-
-function checkGameOver() {
-    if (playerPoints === toWin) {
-        playerWin();
-        resetGame();
-    } else if (compPoints === toWin) {
-        aiWin();
-        resetGame();
-    }
-}
-
-function playerWin() {
-    console.log(DIALOGUE.playerFinalWin);
-    secretRevealed = true;
-}
-
-function aiWin() {
-    console.log(DIALOGUE.aiFinalWin);
-}
-
-function resetGame() {
-    round = 1;
-    compPoints = 0;
-    playerPoints = 0;
-    gameOver = true;
-    secretRevealed = false;
-}
-
-
-// ROUND LOGIC
-function playRound(player, computer) {
-    if (player === computer) return 0;
-
-    if (
-        (player === "rock" && computer === "scissors") ||
-        (player === "paper" && computer === "rock") ||
-        (player === "scissors" && computer === "paper")
-    ) {
-        return 1;
-    }
-
-    return -1;
-}
-
-function roundChoices(roundNumber) {
-    console.log(`\nROUND ${roundNumber}`);
-
-    while (true) {
-        const choice = playerPlay();
-
-        if (choice === null) {
-            console.log(DIALOGUE.invalidInput);
-            continue;
-        }
-
-        if (checkValidInput(choice)) return choice;
-
-        console.log(DIALOGUE.invalidInput);
-    }
-}
-
-function computerPlay() {
-    return choices[Math.floor(Math.random() * choices.length)];
-}
-
-function playerPlay() {
-    return normalizedInput(prompt(DIALOGUE.choosePrompt));
-}
-
-
-// UTILS
-function normalizedInput(input) {
-    if (input === null) return null;
-    return input.trim().toLowerCase();
-}
-
-function checkValidInput(playerSelection) {
-    return choices.includes(playerSelection);
-}
-
-function printScore() {
-    console.log(
-        DIALOGUE.scoreHeader
-            .replace("{playerPoints}", playerPoints)
-            .replace("{compPoints}", compPoints)
-    );
-
-    if (playerPoints === compPoints) {
-        if (playerPoints === 0) {
-            console.log(DIALOGUE.scoreTie0);
-        } else if (playerPoints === 1) {
-            console.log(DIALOGUE.scoreTie1);
-        } else if (playerPoints === 2) {
-            console.log(DIALOGUE.scoreTie2);
-        }
-    } else if (compPoints > playerPoints) {
-        if (compPoints === 1) {
-            console.log(DIALOGUE.scoreAi1);
-        } else if (compPoints === 2 && playerPoints === 0) {
-            console.log(DIALOGUE.scoreAi2_0);
-        } else if (compPoints === 2 && playerPoints === 1) {
-            console.log(DIALOGUE.scoreAi2_1);
-        }
-    } else {
-        if (playerPoints === 1) {
-            console.log(DIALOGUE.scorePlayer1);
-        } else if (playerPoints === 2 && compPoints === 0) {
-            console.log(DIALOGUE.scorePlayer2_0);
-        } else if (playerPoints === 2 && compPoints === 1) {
-            console.log(DIALOGUE.scorePlayer2_1);
-        }
     }
 }
